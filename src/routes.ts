@@ -3,11 +3,15 @@ import { ProductController } from './controllers/ProductController';
 
 const routes = Router();
 
-routes.get('/products', ProductController.index);
+routes.get("/products", ProductController.index);
 
 routes.get("/products/:product_id", (request, response) => ProductController.show(request, response))
 
 routes.post("/products", (request, response) => ProductController.store(request, response))
+
+routes.put("/products/:product_id", (request, response) => ProductController.update(request, response))
+
+routes.delete("/products/:product_id", (request, response) => ProductController.delete(request, response))
 
 export { routes }
 

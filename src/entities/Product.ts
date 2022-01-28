@@ -2,13 +2,15 @@
 // Dica: Pesquisar como criar classes com Typescript
 
 export class Product {
-  name: string
-  description: string
-  price: number
+  public id!: number
 
-  constructor(n:string, d:string, p:number) {
-    this.name = n
-    this.description = d
-    this.price = p
+  public name!: string
+
+  public description!: string
+
+  public price!: number
+
+  constructor(props: Product) {
+    Object.assign(this, props)
   }
 }

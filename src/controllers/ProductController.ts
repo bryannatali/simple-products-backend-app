@@ -5,37 +5,102 @@
 // delete -> Deleta um valor
 
 import { Request, Response } from "express";
+import { Product } from "../entities/Product";
+import { ProductModel } from "../entities/sequelize/Product";
 
 import { Controller } from "./Controller";
 
 export const ProductController: Controller = {
   async index(request: Request, response: Response) {
-    return response.json([])
+    const productsModel = await ProductModel.findAll()
+
+    const products = productsModel.map(productModel => {
+      const product = new Product({
+        id: productModel.id,
+        name: productModel.name,
+        description: productModel.description,
+        price: productModel.price,
+      })
+
+      return product
+    })
+
+    return response.json(products)
   },
 
   async show(request: Request, response: Response) {
-    const { product_id } = request.params;
+    const { product_id } = request.params
 
-    return response.json({ productId: product_id })
+    const productModel = await ProductModel.findByPk(product_id)
+
+    if (!productModel) {
+      return response.json(null)
+    }
+
+    const product = new Product({
+      id: productModel.id,
+      name: productModel.name,
+      description: productModel.description,
+      price: productModel.price
+    })
+
+    return response.json(product)
   },
 
   async store(request: Request, response: Response) {
-    const { name, description } = request.body;
+    const { name, description, price } = request.body
 
-    const newProduct = {
-      id: 1,
+    const productModel = await ProductModel.create({
       name,
-      description
-    }
+      description,
+      price,
+    })
 
-    return response.json(newProduct)
+    const product = new Product({
+      id: productModel.id,
+      name: productModel.name,
+      description: productModel.description,
+      price: productModel.price,
+    })
+
+    return response.json(product)
   },
 
   async update(request: Request, response: Response) {
-    return response.status(404).send();
+    const { name, description, price } = request.body
+    const { product_id } = request.params
+
+    const productModel = await ProductModel.findByPk(product_id)
+
+    if (!productModel) {
+      return response.status(400).json("product not found")
+    }
+    if (name) {
+      productModel.name = name
+    }
+    if (description) {
+      productModel.description = description
+    }
+    if (price) {
+      productModel.price = price
+    }
+
+    await productModel.save()
+
+    return response.status(204).send();
   },
 
   async delete(request: Request, response: Response) {
-    return response.status(404).send();
+    const { product_id } = request.params
+
+    const productModel = await ProductModel.findByPk(product_id)
+
+    if (!productModel) {
+      return response.status(400).json("product not found")
+    }
+
+    await productModel.destroy()
+
+    return response.status(204).send();
   }
 }
